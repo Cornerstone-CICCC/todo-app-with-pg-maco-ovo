@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 
 import pool from "./db/pool.ts";
-import { getTodos } from './constrollers/todosControllers.ts'
+import { getTodos, addTodo } from "./constrollers/todosControllers.ts";
 
 dotenv.config();
 
@@ -21,6 +21,7 @@ app.use(express.json());
 // });
 
 app.get("/todos", getTodos);
+app.post("/todos", addTodo);
 
 app.listen(PORT, () => {
 	console.log(`Server is running on http://localhost:${PORT}`);

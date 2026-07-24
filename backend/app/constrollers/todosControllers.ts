@@ -11,3 +11,15 @@ export const getTodos = async (req: express.Request, res: express.Response) => {
 		res.status(500).json({ error: "Failed to fetch todos" });
 	}
 };
+
+export const addTodo = async (req: express.Request, res: express.Response) => {
+  try {
+    const { task } = req.body;
+    const newTodo = await TodoModel.createTodo(task);
+    res.status(201).json(newTodo);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({error: "Failed to create a todo"});
+    
+  }
+}
