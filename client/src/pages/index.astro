@@ -1,5 +1,7 @@
 ---
-
+import "../styles/global.css";
+import dotenv from "dotenv";
+dotenv.config();
 ---
 
 <html lang="en">
@@ -9,9 +11,58 @@
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Todo</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<div>
+			<h1>Todo App</h1>
+			<div id="add-task">
+				<input id="new-task-input" placeholder="Add a new todo" />
+				<button id="new-task-btn">Add Toodo</button>
+			</div>
+
+			<div id="todos-list"></div>
+		</div>
 	</body>
 </html>
+
+<script>
+	const API = `http://localhost:8080`;
+
+	async function loadTodos() {
+		try {
+			const response = await fetch(`${API}/todos`);
+			const result = await response.json();
+
+			const todos = result;
+			const container = document.getElementById("todos-list");
+
+			if (!container) return;
+
+			interface Todos {
+				id: number;
+				task: string;
+				done: boolean;
+				created_at: Date;
+				updated_at: Date;
+			}
+			const htmlTodos = todos
+				.map((t: Todos) => {
+					return `
+      <section class="todo-card">
+        <p>${t.task}</p>
+        <button>✏️</button>
+        <button>🗑️</button>
+      </section>
+      `;
+				})
+				.join("");
+
+			container.innerHTML = htmlTodos;
+		} catch (error) {
+			console.error("Failed to fetch todos:", error);
+		}
+	}
+
+	loadTodos();
+</script>

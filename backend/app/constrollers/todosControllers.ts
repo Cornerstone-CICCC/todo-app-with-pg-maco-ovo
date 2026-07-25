@@ -4,7 +4,7 @@ import * as TodoModel from "../models/todo.ts";
 // -- R -- Read
 export const getTodos = async (req: express.Request, res: express.Response) => {
 	try {
-		const todos = await TodoModel.getAllTodos();
+		const todos = await TodoModel.getTodos();
 
 		res.status(200).json(todos);
 	} catch (error) {
@@ -17,7 +17,7 @@ export const getTodos = async (req: express.Request, res: express.Response) => {
 export const addTodo = async (req: express.Request, res: express.Response) => {
 	try {
 		const { task } = req.body;
-		const newTodo = await TodoModel.createTodo(task);
+		const newTodo = await TodoModel.addTodo(task);
 		res.status(201).json(newTodo);
 	} catch (error) {
 		console.log(error);
@@ -30,7 +30,7 @@ export const editTodo = async (req: express.Request, res: express.Response) => {
 	try {
 		const id = parseInt(req.params.id as string, 10);
 		const { task, done } = req.body;
-		const updateData = await TodoModel.updateTodo(id, task, done);
+		const updateData = await TodoModel.editTodo(id, task, done);
 
 		if (!updateData) {
 			return res.status(404).json({ message: "Todo not found" });
@@ -53,7 +53,7 @@ export const removeTodo = async (
 ) => {
 	try {
 		const id = parseInt(req.params.id as string, 10);
-		const deletedData = await TodoModel.deleteTodo(id);
+		const deletedData = await TodoModel.removeTodo(id);
 
 		if (!deletedData) {
 			return res.status(404).json({ message: "Todo not found" });
