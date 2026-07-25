@@ -1,7 +1,5 @@
 ---
 import "../styles/global.css";
-import dotenv from "dotenv";
-dotenv.config();
 ---
 
 <html lang="en">
@@ -60,14 +58,14 @@ dotenv.config();
 			}
 			const htmlTodos = todos
 				.map((t: Todos) => {
-					const isChecked = t.done ? "checked" : "";
+					const isDone = t.done ? "checked" : "";
 					const textClass = t.done
 						? "line-through text-gray-400"
 						: "text-gray-800";
 					return `
       <div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg mb-3 border border-gray-100">
         <div class="flex items-center gap-4 text-lg">
-          <input type="checkbox" ${isChecked} class="w-5 h-5 cursor-pointer accent-gray-900" />
+          <input type="checkbox" ${isDone} class="w-5 h-5 cursor-pointer accent-gray-900" />
           <span class="${textClass}">${t.task}</span>
         </div>
         <div>
@@ -86,4 +84,37 @@ dotenv.config();
 	}
 
 	loadTodos();
+
+	// ==== Event Listeners ====
+	document.getElementById("add-btn")?.addEventListener("click", async (e) => {
+		e.preventDefault();
+		const inputElement = document.getElementById(
+			"new-task-input",
+		) as HTMLInputElement;
+		const taskText = inputElement.value;
+
+		if (!taskText) return;
+
+		const payload = { task: taskText };
+
+		try {
+			const response = await fetch(`${API}/todos`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			});
+
+			if (response.ok) {
+				inputElement.value = "";
+				loadTodos();
+			} else {
+				alert("Failed to add a todo");
+			}
+		} catch (error) {
+			console.log("Error submitting todo:", error);
+			alert("An error occurred while adding the todo");
+		}
+	});
+
+	// ==== Modal toggle Logic ====
 </script>
