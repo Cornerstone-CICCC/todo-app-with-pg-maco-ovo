@@ -25,3 +25,12 @@ export const updateTodo = async (id: number, task: string, done: boolean) => {
 
 	return result.rows[0];
 };
+
+// ==== DELETE
+export const deleteTodo = async (id: number) => {
+	const result = await pool.query(
+		"DELETE FROM todos WHERE id = $1 RETURNING *;",
+		[id],
+	);
+	return result.rows[0];
+};

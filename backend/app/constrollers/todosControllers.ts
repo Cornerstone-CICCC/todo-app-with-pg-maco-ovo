@@ -46,3 +46,25 @@ export const editTodo = async (req: express.Request, res: express.Response) => {
 };
 
 // -- D -- Delete
+
+export const removeTodo = async (
+	req: express.Request,
+	res: express.Response,
+) => {
+	try {
+		const id = parseInt(req.params.id as string, 10);
+		const deletedData = await TodoModel.deleteTodo(id);
+
+		if (!deletedData) {
+			return res.status(404).json({ message: "Todo not found" });
+		}
+
+		res.json({
+			message: "Todo deleted successfully",
+			data: deletedData,
+		});
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ error: "Failed to delete todos" });
+	}
+};

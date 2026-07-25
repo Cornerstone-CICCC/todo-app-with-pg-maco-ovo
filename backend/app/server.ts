@@ -6,6 +6,7 @@ import {
 	getTodos,
 	addTodo,
 	editTodo,
+	removeTodo,
 } from "./constrollers/todosControllers.ts";
 
 dotenv.config();
@@ -28,6 +29,7 @@ app.use(express.json());
 app.get("/todos", getTodos);
 app.post("/todos", addTodo);
 app.put("/todos/:id", editTodo);
+app.delete("/todos/:id", removeTodo);
 
 app.listen(PORT, () => {
 	console.log(`Server is running on http://localhost:${PORT}`);
