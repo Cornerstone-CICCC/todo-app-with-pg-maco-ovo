@@ -13,12 +13,26 @@ dotenv.config();
 		<meta name="generator" content={Astro.generator} />
 		<title>Todo</title>
 	</head>
-	<body>
-		<div>
-			<h1>Todo App</h1>
-			<div id="add-task">
-				<input id="new-task-input" placeholder="Add a new todo" />
-				<button id="new-task-btn">Add Toodo</button>
+	<body class="bg-gray-100 font-sans flex justify-center py-12 px-4 m-0">
+		<div
+			class="bg-white p-8 md:p-10 rounded-lg shadow-sm w-full max-w-2xl border border-gray-200"
+		>
+			<h1 class="text-center text-3xl font-bold mb-8 mt-0 text-black">
+				Todo App
+			</h1>
+			<div class="flex gap-3 mb-8">
+				<input
+					type="text"
+					id="new-task-input"
+					placeholder="Add a new todo"
+					class="flex-grow p-3 border border-gray-200 rounded-md text-base focus:outline-none focus:border-gray-400"
+				/>
+				<button
+					id="add-btn"
+					class="bg-gray-900 text-white px-6 py-3 rounded-md font-bold hover:bg-gray-800 transition-colors"
+				>
+					Add Todo
+				</button>
 			</div>
 
 			<div id="todos-list"></div>
@@ -32,9 +46,7 @@ dotenv.config();
 	async function loadTodos() {
 		try {
 			const response = await fetch(`${API}/todos`);
-			const result = await response.json();
-
-			const todos = result;
+			const todos = await response.json();
 			const container = document.getElementById("todos-list");
 
 			if (!container) return;
@@ -48,12 +60,21 @@ dotenv.config();
 			}
 			const htmlTodos = todos
 				.map((t: Todos) => {
+					const isChecked = t.done ? "checked" : "";
+					const textClass = t.done
+						? "line-through text-gray-400"
+						: "text-gray-800";
 					return `
-      <section class="todo-card">
-        <p>${t.task}</p>
-        <button>✏️</button>
-        <button>🗑️</button>
-      </section>
+      <div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg mb-3 border border-gray-100">
+        <div class="flex items-center gap-4 text-lg">
+          <input type="checkbox" ${isChecked} class="w-5 h-5 cursor-pointer accent-gray-900" />
+          <span class="${textClass}">${t.task}</span>
+        </div>
+        <div>
+          <button class="bg-white border border-gray-200 p-2 rounded-md cursor-pointer ml-1 hover:bg-gray-100">✏️</button>
+          <button class="bg-white border border-gray-200 p-2 rounded-md cursor-pointer ml-1 hover:bg-gray-100">🗑️</button>
+        </div>
+      </div>
       `;
 				})
 				.join("");
