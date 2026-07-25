@@ -15,3 +15,13 @@ export const createTodo = async (task: string) => {
 	);
 	return result.rows[0];
 };
+
+// ==== PUT
+export const updateTodo = async (id: number, task: string, done: boolean) => {
+	const result = await pool.query(
+		"UPDATE todos SET task = $1, done = $2 WHERE id = $3 RETURNING *;",
+		[task, done, id],
+	);
+
+	return result.rows[0];
+};
