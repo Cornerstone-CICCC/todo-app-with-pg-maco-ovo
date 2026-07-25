@@ -17,10 +17,10 @@ export const addTodo = async (task: string) => {
 };
 
 // ==== PUT
-export const editTodo = async (id: number, task: string, done: boolean) => {
+export const editTodo = async (id: number, task?: string, done?: boolean) => {
 	const result = await pool.query(
-		"UPDATE todos SET task = $1, done = $2 WHERE id = $3 RETURNING *;",
-		[task, done, id],
+		"UPDATE todos SET task = COALESCE($1,task), done = COALESCE($2, done) WHERE id = $3 RETURNING *;",
+		[task ?? null, done ?? null, id],
 	);
 
 	return result.rows[0];

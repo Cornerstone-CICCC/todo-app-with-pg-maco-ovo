@@ -41,6 +41,16 @@ import "../styles/global.css";
 <script>
 	const API = `http://localhost:8080`;
 
+	interface Todos {
+		id: number;
+		task: string;
+		done: boolean;
+		created_at: Date;
+		updated_at: Date;
+	}
+
+	let editingTodoId: number | null = null;
+
 	async function loadTodos() {
 		try {
 			const response = await fetch(`${API}/todos`);
@@ -49,19 +59,30 @@ import "../styles/global.css";
 
 			if (!container) return;
 
-			interface Todos {
-				id: number;
-				task: string;
-				done: boolean;
-				created_at: Date;
-				updated_at: Date;
-			}
 			const htmlTodos = todos
 				.map((t: Todos) => {
 					const isDone = t.done ? "checked" : "";
 					const textClass = t.done
 						? "line-through text-gray-400"
 						: "text-gray-800";
+
+					if (editingTodoId === t.id) {
+						return `
+            <div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg mb-3 border-gray-100">
+              <input
+                type="text"
+                value="${t.task}"
+                data-todo-id="${t.id}"
+                class="edit-input flex-grow p-2 border border-gray-300 rounded-md text-base focus:outline-none focus:border-gray-300 mr-3"
+              />
+              <button
+              data-todo-id="${t.id}"
+              class="save-btn bg-gray-900 text-white px-6 py-2 rounded-md font-bold hover:bg-gray-800 transition-colors">
+              Save
+              </button>
+            </div>
+            `;
+					}
 
 					return `
       <div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg mb-3 border border-gray-100">
@@ -74,8 +95,12 @@ import "../styles/global.css";
           <span class="${textClass}">${t.task}</span>
         </div>
         <div>
-          <button class="bg-white border border-gray-200 p-2 rounded-md cursor-pointer ml-1 hover:bg-gray-100">✏️</button>
-          <button class="bg-white border border-gray-200 p-2 rounded-md cursor-pointer ml-1 hover:bg-gray-100">🗑️</button>
+          <button 
+          data-todo-id="${t.id}"
+          class="edit-btn bg-white border border-gray-200 p-2 rounded-md cursor-pointer ml-1 hover:bg-gray-100">✏️</button>
+          <button 
+          data-todo-id="${t.id}"
+          class="delete-btn bg-white border border-gray-200 p-2 rounded-md cursor-pointer ml-1 hover:bg-gray-100">🗑️</button>
         </div>
       </div>
       `;
@@ -135,13 +160,62 @@ import "../styles/global.css";
 		toggleDone(id, task, done);
 	});
 
-	// ==== Modal / Toggle Logic ====
+	// -- edit / save / delete
+	document.getElementById("todos-list")?.addEventListener("click", (e) => {
+		const target = e.target as HTMLElement;
+
+		if (target.matches(".edit-btn")) {
+			const id = Number(target.dataset.todoId);
+			editingTodoId = id;
+			loadTodos();
+			return;
+		}
+
+		if (target.matches(".save-btn")) {
+			const id = Number(target.dataset.todoId);
+			const row = target.closest("div");
+			const input = row?.querySelector(
+				".edit-input",
+			) as HTMLInputElement | null;
+			const newTask = input?.value.trim();
+
+			if (!newTask) return;
+
+			editingTodoId = null;
+			updateTask(id, newTask);
+			return;
+		}
+
+		if (target.matches(".delete-btn")) {
+			const id = Number(target.dataset.todoId);
+			deleteTodo(id);
+			return;
+		}
+	});
+
+	// ==== API calls ====
 
 	async function toggleDone(id: number, task: string, done: boolean) {
 		await fetch(`${API}/todos/${id}`, {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ task: task, done: done }),
+		});
+		loadTodos();
+	}
+
+	async function updateTask(id: number, task: string) {
+		await fetch(`${API}/todos/${id}`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ task: task }),
+		});
+		loadTodos();
+	}
+
+	async function deleteTodo(id: number) {
+		await fetch(`${API}/todos/${id}`, {
+			method: "DELETE",
 		});
 		loadTodos();
 	}
