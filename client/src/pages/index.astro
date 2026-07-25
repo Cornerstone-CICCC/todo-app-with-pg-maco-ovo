@@ -62,10 +62,15 @@ import "../styles/global.css";
 					const textClass = t.done
 						? "line-through text-gray-400"
 						: "text-gray-800";
+
 					return `
       <div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg mb-3 border border-gray-100">
         <div class="flex items-center gap-4 text-lg">
-          <input type="checkbox" ${isDone} class="w-5 h-5 cursor-pointer accent-gray-900" />
+          <input 
+          type="checkbox" 
+          ${isDone} 
+          data-todo-id="${t.id}" data-todo-task="${t.task}" 
+          class="check-box w-5 h-5 border-gray-300  bg-white cursor-pointer accent-gray-800" />
           <span class="${textClass}">${t.task}</span>
         </div>
         <div>
@@ -86,6 +91,7 @@ import "../styles/global.css";
 	loadTodos();
 
 	// ==== Event Listeners ====
+	// -- add new task
 	document.getElementById("add-btn")?.addEventListener("click", async (e) => {
 		e.preventDefault();
 		const inputElement = document.getElementById(
@@ -116,5 +122,27 @@ import "../styles/global.css";
 		}
 	});
 
-	// ==== Modal toggle Logic ====
+	// -- check box
+	document.getElementById("todos-list")?.addEventListener("change", (e) => {
+		const target = e.target as HTMLElement;
+		if (!target.matches(".check-box")) return;
+
+		const input = target as HTMLInputElement;
+		const id = Number(input.dataset.todoId);
+		const task = input.dataset.todoTask ?? "";
+		const done = input.checked;
+
+		toggleDone(id, task, done);
+	});
+
+	// ==== Modal / Toggle Logic ====
+
+	async function toggleDone(id: number, task: string, done: boolean) {
+		await fetch(`${API}/todos/${id}`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ task: task, done: done }),
+		});
+		loadTodos();
+	}
 </script>
